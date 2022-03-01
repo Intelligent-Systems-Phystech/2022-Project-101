@@ -14,6 +14,10 @@
 \usepackage{natbib}
 \usepackage{doi}
 
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+
 
 
 \title{A template for the \emph{arxiv} style}
@@ -65,5 +69,70 @@ pdfkeywords={First keyword, Second keyword, More},
 We analyse Newton-type methods of Empirical Risk Minimization problem for some Machine Learning model using Newton-type method accessing one data point per iteration. Specifically, we plan to improve stochastic variant of Newton’s method. Unlike most other stochastic variants of second order methods, which require the evaluation of a large number of gradients and/or Hessians in each iteration to guarantee convergence, this methods do not have this shortcoming. We try to improve the performance of the algorithm by applying existing sampling strategies and incremental methods.
 \end{abstract}
 
+\section{Introduction}
+
+Assume we have $n$ training points $\left(a_i, b_i\right)$ for $i \in \overline{1, n}$. We also assume $n$ to be large. Let $f_i\left(x\right)$ be a loss function on $i$-th training point . We analyze second order methods solving Empirical Risk Minimization problem of the form.
+
+\begin{equation}
+    \min\limits_{x\in R} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
+\end{equation}
+
+As $n$ is large this problem is typically solved by Stochastic Gradient Descent. First-order methods are well studied, and there are many papers describing them, such as \cite{litlink1}. Stochastic Gradient Descen have cheap iterations independent of n, but with constant-stepsize due to high variance of the stochastic gradient has low accuracy convergence. Radius of this convergence is proportional to the variance of the stochastic gradient. 
+Variance-reduced methods \cite{litlink2} have better convergence, however required number of iterations depends on the condition number. 
+
+Second-order methods, adapt to the curvature of the problem and thereby decrease their dependence on the condition number. The vanilla deterministic Newton method describes the following way:
+
+\begin{equation}
+    x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right)
+\end{equation}
+
+
+However this method does not directly translate to the stochastic case as convergence to the optimal of sample of functions is too quick. Despite first-order methods, this methods are poorly understood, a there are just a few researches connected to it \cite{litlink3}. The problem is usually solved by large batch size. Nevertheless, by applying different sampling strategies we will smooth the step direction using the memory of past directions.
+
+\begin{equation}
+\begin{multlined}
+    x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right) = \\
+    \left(\nabla^2f\left(x^k\right)\right)^{-1}\left(\nabla^2f\left(x^k\right)x^k - \nabla f\left(x^k\right)\right) = \\
+    \left(\sum\limits_{i=1}^n\nabla^2f_i\left(x^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)x^k - \nabla f_i\left(x^k\right)\right)
+\end{multlined}
+\end{equation}
+
+We will modify the algorithm presented by Dmitry Kovalev and Konstantin Mishchenko \cite{litlink4}. We will be iteratively by $t$ from $1$ to $T \leq n$ construct a vector $w^t \in R^n$ by the following rules: 
+
+\begin{equation*}
+\begin{multlined}
+w^0_i = x^0 \text{, for } i \in \overline{1, n}. \\
+w_i^{t+1}= 
+ \begin{cases}
+   w_i^{t} &i \not\in S^t\\
+   x^{t + 1} &i \in S^t\\
+ \end{cases}
+ \end{multlined}
+\end{equation*}
+$S^k$ is uniformly chosen random subset of $\{1, \dots, n\}$ with size $\tau$. \\
+
+The algorithms looks the following way:
+
+\begin{equation}
+\begin{multlined}
+    x^{k+1} = \left(\sum\limits_{i=1}^n\nabla^2f_i\left(w_i^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)w_i^k - \nabla f_i\left(w_i^k\right)\right)
+\end{multlined}
+\end{equation}
+
+Often other sampling strategies may work better, so we plan to implement them.
+
+\newpage
+ 
+% даём указание на включение данного место в оглавление как секции (\section)
+\addcontentsline{toc}{section}{Список используемой литературы}
+ 
+%далее сам список используевой литературы
+\begin{thebibliography}{}
+    \bibitem{litlink1} Ahmed Khaled, Othmane Sebbouh, Nicolas Loizou, Robert M. Gower, Peter Richtárik - "Unified Analysis of Stochastic Gradient Methods for Composite Convex and Smooth Optimization"
+    \bibitem{litlink2} Eduard Gorbunov, Filip Hanzely, Peter Richtarik  -  "A Unified Theory of SGD: Variance Reduction, Sampling, Quantization and Coordinate Descent"
+    \bibitem{litlink3} Anton Rodomanov, Dmitry Kropotov - "A Superlinearly-Convergent Proximal Newton-type Method for the Optimization of Finite Sums"
+    
+    \bibitem{litlink4} Dmitry Kovalev, Konstantin Mishchenko - "Stochastic Newton and Cubic Newton Methods with Simple Local Linear-Quadratic Rates"
+\end{thebibliography}
 
 \end{document}
