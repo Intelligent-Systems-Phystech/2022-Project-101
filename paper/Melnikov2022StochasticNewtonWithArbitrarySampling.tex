@@ -91,7 +91,7 @@ In classic optimization one of the solutions is to use second-order information 
     x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right)
 \end{equation}
 
-In the case of ERM we need to compute $\mathcal{O}(n)$ Hessians per iteration which is extremely costly in practice. Our desire is to compute only a few Hessians in each iteration. One of the most popular directions is so called Subsampled Stochastic Newton's methods. Despite first-order methods, these methods are poorly understood, and the theory usually requires a large batch sizes. To the best of our knowledge there are just a few works that provable work with arbitrary batch sizes \cite{litlink3, litlink5} 
+In the case of ERM we need to compute $\mathcal{O}(n)$ Hessians per iteration which is extremely costly in practice. Our desire is to compute only a few Hessians in each iteration. One of the most popular directions is so called Subsampled Stochastic Newton's methods. "These methods employ approximate gradients and Hessians, through sampling, in order to achieve efficiency and scalability. Additional economy of computation is obtained by solving linear systems inexactly at every iteration, i.e., by implementing inexact Newton methods"\cite{litlink7}. Despite first-order methods, these methods are poorly understood, and the theory usually requires a large batch sizes. To the best of our knowledge there are just a few works that provable work with arbitrary batch sizes \cite{litlink3, litlink5, litlink6} 
 
 \begin{equation}
 \begin{multlined}
@@ -165,6 +165,10 @@ Assume we have $n$ training points $\left(a_i, b_i\right)$ for $i \in \overline{
     \bibitem{litlink4} Dmitry Kovalev, Konstantin Mishchenko - "Stochastic Newton and Cubic Newton Methods with Simple Local Linear-Quadratic Rates"
     
     \bibitem{litlink5}Peter Richtarik, Martin Takac - "Parallel coordinate descent methods for big data optimization"
+    \bibitem{litlink6}Peter Richtarik, Martin Takac - "On optimal probabilities in stochastic coordinate descent methods.
+arXiv:1310.3438 (2013)"
+    \bibitem{litlink7} Raghu Bollapragada, Richard Byrd, Jorge Nocedal - "Exact and Inexact Subsampled Newton Methods for
+Optimization"
 
     
  \bibitem{svrg}
