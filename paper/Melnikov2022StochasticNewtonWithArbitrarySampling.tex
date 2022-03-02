@@ -1,9 +1,9 @@
 \documentclass{article}
-\usepackage{arxiv}
+%\usepackage{arxiv}
+%\usepackage[T1,T2A]{fontenc}
 
 \usepackage[utf8]{inputenc}
-\usepackage[english, russian]{babel}
-\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
 \usepackage{url}
 \usepackage{booktabs}
 \usepackage{amsfonts}
@@ -11,7 +11,6 @@
 \usepackage{microtype}
 \usepackage{lipsum}
 \usepackage{graphicx}
-\usepackage{natbib}
 \usepackage{doi}
 
 \usepackage[utf8]{inputenc}
@@ -21,49 +20,26 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+\usepackage{babel,csquotes,newcent,textcomp}
+\usepackage[backend=biber,sortcites]{biblatex}
 
-\title{A template for the \emph{arxiv} style}
+
+\usepackage{lipsum}
+\title{Stochastic Newton with Arbitrary Sampling}
 
 \author{ Igor ~Melnikov	\\
 	Moscow Institute of Physics and Technology\\
 	Dolgoprudny, Russia \\
 	\texttt{melnikov.ia@phystech.edu} \\
 	%% examples of more authors
-	\And
+	\and
 	Rustem Islamov \\
 	Institut Polytechnique de Paris\\
 	Palaiseau, France \\
 	\texttt{rustem.islamov@ip-paris.fr} \\
-	%% \AND
-	%% Coauthor \\
-	%% Affiliation \\
-	%% Address \\
-	%% \texttt{email} \\
-	%% \And
-	%% Coauthor \\
-	%% Affiliation \\
-	%% Address \\
-	%% \texttt{email} \\
-	%% \And
-	%% Coauthor \\
-	%% Affiliation \\
-	%% Address \\
-	%% \texttt{email} \\
-}
-\date{}
-
-\renewcommand{\shorttitle}{\textit{arXiv} Template}
-
-%%% Add PDF metadata to help others organize their library
-%%% Once the PDF is generated, you can check the metadata with
-%%% $ pdfinfo template.pdf
-\hypersetup{
-pdftitle={A template for the arxiv style},
-pdfsubject={q-bio.NC, q-bio.QM},
-pdfauthor={David S.~Hippocampus, Elias D.~Striatum},
-pdfkeywords={First keyword, Second keyword, More},
 }
 
+\addbibresource{mybib.bib}
 \begin{document}
 \maketitle
 
@@ -72,8 +48,6 @@ We analyse stochastic Newton-type methods for solving Empirical Risk Minimizatio
 \end{abstract}
 
 \section{Introduction}
-
-Our goal is to solve Emperical Risk Minimization (ERM) Problem of the form
 \begin{equation}\label{eq:problem}
     \min\limits_{x\in \mathbb{R}^d} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
 \end{equation}
@@ -83,7 +57,7 @@ Here $n$ is the number of data points that is typically extremely large in real 
 \end{equation}
 where $a_i \in \mathbb{R}^d$ and $b_i \in \{-1,1\}.$
 
-As $n$ is large the problem~\eqref{eq:problem} is typically solved by First-order methods that uses only one data point per iteration. These methods are extensively studied and there are a wide variety of variations of such techniques. In particular, the Stochastic Gradient Descent(SGD) is often used, the distinguishing feature of which is cheap iterations independent of $n$. Nevertheless, SGD with constant-stepsize has a number of disadvantages, the main of which is that it converges only up to the neighbourhood of the solution, not the exact solution. This problem arises since stochastic gradient estimator has non-zero variance. Radius of this convergence area is proportional to the variance of the stochastic gradient. The so-called variance-reduced methods \cite{svrg, saga} are used to solve this problem. They have the same iteration cost as SGD, but now the convergence to the exact solution. Nevertheless, all first-order methods known to us are characterized by the dependence of the required number of iterations on the condition number\footnote{For a continuously Differentiable function $f$ condition number is defined as $\lim\limits_{\varepsilon \rightarrow 0} \sup\limits_{\left\|\partial x\right\| \leq \varepsilon} \frac{\left\|\partial f\left(x\right)\right\|}{\left\|\partial x\right\|}$}. This makes impossible using SGD and its variants for ill-conditioned problems.
+As $n$ is large the problem~\eqref{eq:problem} is typically solved by First-order methods that uses only one data point per iteration. These methods are extensively studied \cite{litlink1} and there are a wide variety of variations of such techniques. In particular, the Stochastic Gradient Descent(SGD) is often used, the distinguishing feature of which is cheap iterations independent of $n$. Nevertheless, SGD with constant-stepsize has a number of disadvantages, the main of which is that it converges only up to the neighbourhood of the solution, not the exact solution. This problem arises since stochastic gradient estimator has non-zero variance. Radius of this convergence area is proportional to the variance of the stochastic gradient. The so-called variance-reduced methods \cite{svrg, saga} are used to solve this problem. They have the same iteration cost as SGD, but now the algorithm converges to the exact solution. However, all first-order methods known to us are characterized by the dependence of the required number of iterations on the condition number\footnote{For a continuously Differentiable function $f$ condition number is defined as $\lim\limits_{\varepsilon \rightarrow 0} \sup\limits_{\left\|\partial x\right\| \leq \varepsilon} \frac{\left\|\partial f\left(x\right)\right\|}{\left\|\partial x\right\|}$,\\ for $L$-smooth and $\mu$-convex function the condition number is $\frac{L}{\mu}$}. This makes impossible using SGD and its variants for ill-conditioned problems.
 
 In classic optimization one of the solutions is to use second-order information about the objective. Classic Newton's method adapts to the curvature of the problem and thereby decrease the dependence on the condition number. The step of Newton's method has the following form
 
@@ -91,31 +65,24 @@ In classic optimization one of the solutions is to use second-order information 
     x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right)
 \end{equation}
 
-In the case of ERM we need to compute $\mathcal{O}(n)$ Hessians per iteration which is extremely costly in practice. Our desire is to compute only a few Hessians in each iteration. One of the most popular directions is so called Subsampled Stochastic Newton's methods. "These methods employ approximate gradients and Hessians, through sampling, in order to achieve efficiency and scalability. Additional economy of computation is obtained by solving linear systems inexactly at every iteration, i.e., by implementing inexact Newton methods"\cite{litlink7}. Despite first-order methods, these methods are poorly understood, and the theory usually requires a large batch sizes. To the best of our knowledge there are just a few works that provable work with arbitrary batch sizes \cite{litlink3, litlink5, litlink6} 
+In the case of ERM we need to compute $n$ Hessians per iteration which is extremely costly in practice. Our desire is to use only a few Hessians in each iteration. One of the most popular directions is so called Subsampled Stochastic Newton's methods \cite{litlink7}. Despite first-order methods, these methods are poorly understood, and the theory usually requires a large batch sizes. To the best of our knowledge there are just a few works that provable work with arbitrary batch sizes \cite{litlink3, litlink5, litlink6}.
 
-\begin{equation}
-\begin{multlined}
-    x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right) = \\
-    \left(\nabla^2f\left(x^k\right)\right)^{-1}\left(\nabla^2f\left(x^k\right)x^k - \nabla f\left(x^k\right)\right) = \\
-    \left(\sum\limits_{i=1}^n\nabla^2f_i\left(x^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)x^k - \nabla f_i\left(x^k\right)\right)
-\end{multlined}
-\end{equation}
-
-In this work we focus on the work of Dmitry Kovalev and Konstantin Mishchenko \cite{litlink4}. They presentes the following algorithm:
+In this work we focus on the Algorith 1 of  \cite{litlink4}. They presentes the following algorithm:
 
 \begin{algorithm}\label{eq:algorithm}
 \caption{Stochastic Newton (SN)}\label{alg:cap}
 \begin{algorithmic}
-\State \textbf{Initialize:} Choose starting iterates $w_1^0, w_2a^0, \dots, w_n^0 \in \mathbb{R}^d$ and minibatch size $\tau \in \{1, 2, \dots, n\}$
-\For {$k = 1, \dots$} \Do
+\State {$\textbf{Initialize:}$ Choose starting iterates $w_1^0, w_2a^0, \dots, w_n^0 \in \mathbb{R}^d$ and minibatch size $\tau \in \{1, 2, \dots, n\}$}
+\For {$k = 1, \dots$}
     \State {$x^{k+1} = \left(\sum\limits_{i=1}^n\nabla^2f_i\left(w_i^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)w_i^k - \nabla f_i\left(w_i^k\right)\right)$}
     \State {Choose a subset $k \subseteq \{1,\dots, n\}$ of size $\tau$ uniformly at random}
-    \State{w_i^{t+1}= 
- \begin{cases}
-   w_i^{t} &i \not\in S^t\\
-   x^{t + 1} &i \in S^t\\
- \end{cases}}
- 
+    \State {
+        $w_i^{t+1}= 
+    \begin{cases}
+        w_i^{t} &i \not\in S^t\\
+        x^{t + 1} &i \in S^t\\
+     \end{cases}$
+}
 \EndFor
 \end{algorithmic}
 \end{algorithm}
@@ -147,35 +114,21 @@ We investigate how the sampling strategies affect the performance of Algorithm \
 
 Assume we have $n$ training points $\left(a_i, b_i\right)$ for $i \in \overline{1, n}$. We also assume $n$ to be large. Let $f_i\left(x\right)$ be a loss function on $i$-th training point . We analyze second order methods solving Empirical Risk Minimization problem of the form.
 
+One of the examples of the problem that has the form of \eqref{eq:problem} is Logistic Regression problem where
+\begin{equation}
+    f_i(x) = \log\left(1+\exp(-b_i a_i^\top x )\right),
+\end{equation}
+where $a_i \in \mathbb{R}^d$ and $b_i \in \{-1,1\}.$
+
+
 \begin{equation}
     \min\limits_{x\in R} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
 \end{equation}
-
 \newpage
- 
-% даём указание на включение данного место в оглавление как секции (\section)
 \addcontentsline{toc}{section}{Список используемой литературы}
- 
-%далее сам список используевой литературы
-\begin{thebibliography}{}
-    \bibitem{litlink1} Ahmed Khaled, Othmane Sebbouh, Nicolas Loizou, Robert M. Gower, Peter Richtárik - "Unified Analysis of Stochastic Gradient Methods for Composite Convex and Smooth Optimization"
-    \bibitem{litlink2} Eduard Gorbunov, Filip Hanzely, Peter Richtarik  -  "A Unified Theory of SGD: Variance Reduction, Sampling, Quantization and Coordinate Descent"
-    \bibitem{litlink3} Anton Rodomanov, Dmitry Kropotov - "A Superlinearly-Convergent Proximal Newton-type Method for the Optimization of Finite Sums"
-    
-    \bibitem{litlink4} Dmitry Kovalev, Konstantin Mishchenko - "Stochastic Newton and Cubic Newton Methods with Simple Local Linear-Quadratic Rates"
-    
-    \bibitem{litlink5}Peter Richtarik, Martin Takac - "Parallel coordinate descent methods for big data optimization"
-    \bibitem{litlink6}Peter Richtarik, Martin Takac - "On optimal probabilities in stochastic coordinate descent methods.
-arXiv:1310.3438 (2013)"
-    \bibitem{litlink7} Raghu Bollapragada, Richard Byrd, Jorge Nocedal - "Exact and Inexact Subsampled Newton Methods for
-Optimization"
 
-    
- \bibitem{svrg}
- Rie Johnson and Tong Zhang, Accelerating stochastic gradient descent using predictive variance reduction, Advances in Neural Information Processing Systems, 2013.
- 
-    \bibitem{saga}
-    M. Schmidt and N. Le Roux and F. Bach, Minimizing finite sums with the stochastic average
-gradient, Math. Program., 162(1-2):83–112, 2017.
-\end{thebibliography}
+%далее сам список используевой литературы
+\printbibliography
 \end{document}
+
+
