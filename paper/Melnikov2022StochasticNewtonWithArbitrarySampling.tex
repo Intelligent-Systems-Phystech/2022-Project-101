@@ -18,6 +18,8 @@
 \usepackage{amsmath}
 \usepackage{mathtools}
 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 
 \title{A template for the \emph{arxiv} style}
@@ -66,25 +68,32 @@ pdfkeywords={First keyword, Second keyword, More},
 \maketitle
 
 \begin{abstract}
-We analyse Newton-type methods of Empirical Risk Minimization problem for some Machine Learning model using Newton-type method accessing one data point per iteration. Specifically, we plan to improve stochastic variant of Newton’s method. Unlike most other stochastic variants of second order methods, which require the evaluation of a large number of gradients and/or Hessians in each iteration to guarantee convergence, this methods do not have this shortcoming. We try to improve the performance of the algorithm by applying existing sampling strategies and incremental methods.
+We analyse stochastic Newton-type methods for solving Empirical Risk Minimization problem. We prove fast local convergence rates independent of the condition number. Unlike most other stochastic variants of second order methods, which require the evaluation of a large number of gradients and/or Hessians in each iteration to guarantee convergence, the method do not have this shortcoming. We investigate the performance of the method by applying existing sampling strategies.
 \end{abstract}
 
 \section{Introduction}
 
-Assume we have $n$ training points $\left(a_i, b_i\right)$ for $i \in \overline{1, n}$. We also assume $n$ to be large. Let $f_i\left(x\right)$ be a loss function on $i$-th training point . We analyze second order methods solving Empirical Risk Minimization problem of the form.
-
-\begin{equation}
-    \min\limits_{x\in R} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
+Our goal is to solve Emperical Risk Minimization (ERM) Problem of the form
+\begin{equation}\label{eq:problem}
+    \min\limits_{x\in \mathbb{R}^d} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
 \end{equation}
+Here $n$ is the number of data points that is typically extremely large in real problems; $d$ is the number of model parameters. Ususally, $f_i$ denotes the value of a loss function on $i$-th data point $(a_i, b_i)$. One of the examples of the problem that has the form of \eqref{eq:problem} is Logistic Regression problem where
+\begin{equation}
+    f_i(x) = \log\left(1+\exp(-b_i a_i^\top x )\right),
+\end{equation}
+where $a_i \in \mathbb{R}^d$ and $b_i \in \{-1,1\}.$
 
-As $n$ is large this problem is typically solved by Stochastic Gradient Descent. First-order methods are well studied, and there are many papers describing them, such as \cite{litlink1}. Stochastic Gradient Descen have cheap iterations independent of n, but with constant-stepsize due to high variance of the stochastic gradient has low accuracy convergence. Radius of this convergence is proportional to the variance of the stochastic gradient. 
-Variance-reduced methods \cite{litlink2} have better convergence, however required number of iterations depends on the condition number. 
+As $n$ is large the problem~\eqref{eq:problem} is typically solved by First-order methods that uses only one data point per iteration. These methods are extensively studied and there are a wide variety of variations of such techniques. In particular, the Stochastic Gradient Descent(SGD) is often used, the distinguishing feature of which is cheap iterations independent of $n$. Nevertheless, SGD with constant-stepsize has a number of disadvantages, the main of which is that it converges only up to the neighbourhood of the solution, not the exact solution. This problem arises since stochastic gradient estimator has non-zero variance. Radius of this convergence area is proportional to the variance of the stochastic gradient. The so-called variance-reduced methods \cite{svrg, saga} are used to solve this problem. They have the same iteration cost as SGD, but now the convergence to the exact solution. Nevertheless, all first-order methods known to us are characterized by the dependence of the required number of iterations on the condition number\footnote{For a continuously Differentiable function $f$ condition number is defined as $\lim\limits_{\varepsilon \rightarrow 0} \sup\limits_{\left\|\partial x\right\| \leq \varepsilon} \frac{\left\|\partial f\left(x\right)\right\|}{\left\|\partial x\right\|}$}. This makes impossible using SGD and its variants for ill-conditioned problems.
 
-Second-order methods, adapt to the curvature of the problem and thereby decrease their dependence on the condition number. The vanilla deterministic Newton method describes the following way:
+In classic optimization one of the solutions is to use second-order information about the objective. Classic Newton's method adapts to the curvature of the problem and thereby decrease the dependence on the condition number. The step of Newton's method has the following form
 
 \begin{equation}
     x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right)
 \end{equation}
+
+In the case of ERM we need to compute $\mathcal{O}(n)$ Hessians per iteration which is extremely costly in practice. Our desire is to compute only a few Hessians in each iteration. One of the most popular directions is so called Subsampled Stochastic Newton's methods. Despite first-order methods, these methods are poorly understood, and the theory usually requires a large batch sizes. To the best of our knowledge there are just a few works that provable work with arbitrary batch sizes \cite{litlink3, litlink5} 
+
+Нет хорошей теории, проблема решается при помощи больших размеров батчей
 
 
 However this method does not directly translate to the stochastic case as convergence to the optimal of sample of functions is too quick. Despite first-order methods, this methods are poorly understood, a there are just a few researches connected to it \cite{litlink3}. The problem is usually solved by large batch size. Nevertheless, by applying different sampling strategies we will smooth the step direction using the memory of past directions.
@@ -97,29 +106,55 @@ However this method does not directly translate to the stochastic case as conver
 \end{multlined}
 \end{equation}
 
-We will modify the algorithm presented by Dmitry Kovalev and Konstantin Mishchenko \cite{litlink4}. We will be iteratively by $t$ from $1$ to $T \leq n$ construct a vector $w^t \in R^n$ by the following rules: 
+In this work we focus on the work of Dmitry Kovalev and Konstantin Mishchenko \cite{litlink4}. They presentes the following algorithm:
 
-\begin{equation*}
-\begin{multlined}
-w^0_i = x^0 \text{, for } i \in \overline{1, n}. \\
-w_i^{t+1}= 
+\begin{algorithm}\label{eq:algorithm}
+\caption{Stochastic Newton (SN)}\label{alg:cap}
+\begin{algorithmic}
+\State \textbf{Initialize:} Choose starting iterates $w_1^0, w_2a^0, \dots, w_n^0 \in \mathbb{R}^d$ and minibatch size $\tau \in \{1, 2, \dots, n\}$
+\For {$k = 1, \dots$} \Do
+    \State {$x^{k+1} = \left(\sum\limits_{i=1}^n\nabla^2f_i\left(w_i^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)w_i^k - \nabla f_i\left(w_i^k\right)\right)$}
+    \State {Choose a subset $k \subseteq \{1,\dots, n\}$ of size $\tau$ uniformly at random}
+    \State{w_i^{t+1}= 
  \begin{cases}
    w_i^{t} &i \not\in S^t\\
    x^{t + 1} &i \in S^t\\
- \end{cases}
- \end{multlined}
-\end{equation*}
-$S^k$ is uniformly chosen random subset of $\{1, \dots, n\}$ with size $\tau$. \\
+ \end{cases}}
+ 
+\EndFor
+\end{algorithmic}
+\end{algorithm}
 
-The algorithms looks the following way:
+
+% \begin{equation*}
+% \begin{multlined}
+% w^0_i = x^0 \text{, for } i \in \overline{1, n}. \\
+% w_i^{t+1}= 
+%  \begin{cases}
+%   w_i^{t} &i \not\in S^t\\
+%   x^{t + 1} &i \in S^t\\
+%  \end{cases}
+%  \end{multlined}
+% \end{equation*}
+% $S^k$ is uniformly chosen random subset of $\{1, \dots, n\}$ with size $\tau$. \\
+
+% The algorithms looks the following way:
+
+% \begin{equation}
+% \begin{multlined}
+%     x^{k+1} = \left(\sum\limits_{i=1}^n\nabla^2f_i\left(w_i^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)w_i^k - \nabla f_i\left(w_i^k\right)\right)
+% \end{multlined}
+% \end{equation}
+
+We investigate how the sampling strategies affect the performance of Algorithm \eqref{eq:algorithm}. In practice, the uniform sampling is not the best choice, and we need to use another strategies how to choose a set $S^t$. 
+
+\section{Problem Statement}
+
+Assume we have $n$ training points $\left(a_i, b_i\right)$ for $i \in \overline{1, n}$. We also assume $n$ to be large. Let $f_i\left(x\right)$ be a loss function on $i$-th training point . We analyze second order methods solving Empirical Risk Minimization problem of the form.
 
 \begin{equation}
-\begin{multlined}
-    x^{k+1} = \left(\sum\limits_{i=1}^n\nabla^2f_i\left(w_i^k\right)\right)^{-1}\sum\limits_{i=1}^n \left(\nabla^2f_i\left(x^k\right)w_i^k - \nabla f_i\left(w_i^k\right)\right)
-\end{multlined}
+    \min\limits_{x\in R} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
 \end{equation}
-
-Often other sampling strategies may work better, so we plan to implement them.
 
 \newpage
  
@@ -133,6 +168,15 @@ Often other sampling strategies may work better, so we plan to implement them.
     \bibitem{litlink3} Anton Rodomanov, Dmitry Kropotov - "A Superlinearly-Convergent Proximal Newton-type Method for the Optimization of Finite Sums"
     
     \bibitem{litlink4} Dmitry Kovalev, Konstantin Mishchenko - "Stochastic Newton and Cubic Newton Methods with Simple Local Linear-Quadratic Rates"
-\end{thebibliography}
+    
+    \bibitem{litlink5}Peter Richtarik, Martin Takac - "Parallel coordinate descent methods for big data optimization"
 
+    
+ \bibitem{svrg}
+ Rie Johnson and Tong Zhang, Accelerating stochastic gradient descent using predictive variance reduction, Advances in Neural Information Processing Systems, 2013.
+ 
+    \bibitem{saga}
+    M. Schmidt and N. Le Roux and F. Bach, Minimizing finite sums with the stochastic average
+gradient, Math. Program., 162(1-2):83–112, 2017.
+\end{thebibliography}
 \end{document}
