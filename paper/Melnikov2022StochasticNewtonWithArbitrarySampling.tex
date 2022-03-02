@@ -93,11 +93,6 @@ In classic optimization one of the solutions is to use second-order information 
 
 In the case of ERM we need to compute $\mathcal{O}(n)$ Hessians per iteration which is extremely costly in practice. Our desire is to compute only a few Hessians in each iteration. One of the most popular directions is so called Subsampled Stochastic Newton's methods. Despite first-order methods, these methods are poorly understood, and the theory usually requires a large batch sizes. To the best of our knowledge there are just a few works that provable work with arbitrary batch sizes \cite{litlink3, litlink5} 
 
-Нет хорошей теории, проблема решается при помощи больших размеров батчей
-
-
-However this method does not directly translate to the stochastic case as convergence to the optimal of sample of functions is too quick. Despite first-order methods, this methods are poorly understood, a there are just a few researches connected to it \cite{litlink3}. The problem is usually solved by large batch size. Nevertheless, by applying different sampling strategies we will smooth the step direction using the memory of past directions.
-
 \begin{equation}
 \begin{multlined}
     x^{k+1} = x^k - \left(\nabla^2f\left(x^k\right)\right)^{-1}\nabla f\left(x^k\right) = \\
