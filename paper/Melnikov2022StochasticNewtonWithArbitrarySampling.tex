@@ -124,6 +124,42 @@ where $a_i \in \mathbb{R}^d$ and $b_i \in \{-1,1\}.$
 \begin{equation}
     \min\limits_{x\in R} \left[f\left(x\right):=\cfrac{1}{n}\sum\limits_{i=1}^{n}f_i\left(x\right)\right].
 \end{equation}
+
+\section{Experiment Plan}
+
+The experiment applies Algorithm 1 to minimize the logistic regression risk function with $l_2$ regularization.
+
+\begin{equation}
+    f_i(x) = \log\left(1+\exp(-b_i a_i^\top x )\right) + \frac{\lambda}{2}\|x\|,
+\end{equation}
+
+The main experiment is to establish the dependence of convergence accuracy on the size of the batch. The goal is to establish that conditional number does not significantly affect convergence. To do this, it is sufficient to establish that the curves are not very different. 
+
+We generate the synthetic data by the make classification function of the scikit-learn library, where n = 500 and d = 5. Each row of the data matrix is normalized such that $\|a_i\| = 1$. We run experiments for $\lambda = \{10^{-1}, 10^{-3}, 10^{-4}\}$, which leads to conditional number differ more than in 10 times.
+Initial point $x^0$ is taken as the result of GD in 30 iteration.
+
+\newpage
+
+We expect table in presented as pandas.DataFrame with columns=['k(iter num)', 'Ak/A0', 'tau', 'lambda'].
+
+Expected plots.\\  
+\includegraphics[width=90mm]{sketch.png}
+
+x-axis is number of iterations of the algorithm. y-axis is ratio $\cfrac{A_0}{A_k}$,where $A_0 = |x^*-x^0|, A_k = |x^*-x^k|$.
+
+\section{Preliminary report}
+Convergence has been established. For lambdas 0.001 and 0.0001 the difference in accuracy at 100th iteration is less than in 1.2 times for all butch sizes. However for lambda 0.1 accuracy is much higher - that is a fact to investigate in more detail.
+
+\includegraphics[width=90mm]{plot.png}
+
+\section{Run Basic Code}
+We have implemented algorithm 1. 
+
+Competitive models for our algorithm were described in Introduction section with links on description. These models are  Gradient Descent, Stochastic Gradient Descent, variance-reduced methods, classical Newton's method.
+
+A description of the algorithm in the form of pseudocode is given in the introduction.
+
+
 \newpage
 \addcontentsline{toc}{section}{Список используемой литературы}
 
