@@ -12,6 +12,8 @@
 \usepackage{lipsum}
 \usepackage{graphicx}
 \usepackage{doi}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -159,6 +161,58 @@ Competitive models for our algorithm were described in Introduction section with
 
 A description of the algorithm in the form of pseudocode is given in the introduction.
 
+\section{Theoretical part}
+
+The proof was based on the proof in the article 1.
+
+\begin{theorem} Assume that every $f_i$ is $µ$-strongly convex and has $H$-Lipschitz Hessian and consider
+the following Lyapunov function:
+\begin{equation}
+    W^k \overset{def}{=} \frac{1}{n}\sum\limits_{i=1}^{n}\|w_i^k - x^\star\|.
+\end{equation}
+
+Then for the random iterates of NS Algorithm we have the recursion:
+\begin{equation}
+    \mathbf{E}_k W^{k + 1} \leq \left(1 - \frac{\tau}{n} +
+    \frac{\tau}{n}\left(\frac{H}{2\mu}\right)^2W^k\right)W^k.
+\end{equation}
+
+Furthermore if $\|w_i^0 - x^\star\| \leq \frac{\mu}{H}$, for $i \in \{1, \dots, n\}$, then
+\begin{equation}
+    \mathbf{E}_k W^{k + 1} \leq \left(1 - \frac{3\tau}{4n}\right)W^k.
+\end{equation}
+\end{theorem}
+
+This theorem implies at least linear convergence rate for all $\tau$ in our algorithm.
+Let's denote by $p_i$ probability of i be in $S$. $|sum|limits_{i=1}^n p_i = \tau$
+
+\begin{lemma} (taken from article 1.).
+Let $f_i$ be $\mu$-strongly convex and have $H$-Lipschitz Hessian for all $i = 1, \dots, n$. Then
+the iterates of the Algorithm satisfy:
+\begin{equation}
+    \|x^k - x^\star\| \leq \frac{H}{2\mu}W^k.
+\end{equation}
+\end{lemma}
+
+\begin{lemma}
+If $\|w_i^0 - x^\star\| \leq \frac{\mu}{H}$, for $i \in \{1, \dots, n\}$, then for all $k$, for $i \in \{1, \dots, n\}$
+\begin{equation}
+    \|w_i^k - x^\star\|^2 \leq \left(\frac{\mu}{H}\right)^2
+\end{equation}
+\end{lemma}
+
+\begin{lemma} The random iterates of the Algorithms satisfy the identity
+\end{lemma}
+Proof:
+\begin{equation*}
+\begin{split}
+    \mathbf{E}_k W^{k + 1} = \frac{1}{n}\sum\limits_{i=1}^{n}\mathbf{E}_k\|w_i^{k + 1} - x^\star\| =
+     \frac{1}{n}\sum\limits_{i=1}^{n}p_i\|x^k - x^\star\| + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| = \\
+     \frac{\tau}{n}\|x^k - x^\star\| + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| \leq
+     \frac{\tau}{n}\left(\frac{H}{2\mu}\right)^2\left(W^k\right)^2 + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| \leq \\
+     \frac{1}{4}\frac{\tau}{n} + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\|
+\end{split}
+\end{equation*}
 
 \newpage
 \addcontentsline{toc}{section}{Список используемой литературы}
