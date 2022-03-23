@@ -160,7 +160,6 @@ We have implemented algorithm 1.
 Competitive models for our algorithm were described in Introduction section with links on description. These models are  Gradient Descent, Stochastic Gradient Descent, variance-reduced methods, classical Newton's method.
 
 A description of the algorithm in the form of pseudocode is given in the introduction.
-
 \section{Theoretical part}
 
 The proof was based on the proof in the article 1.
@@ -177,7 +176,7 @@ Then for the random iterates of NS Algorithm we have the recursion:
     \frac{\tau}{n}\left(\frac{H}{2\mu}\right)^2W^k\right)W^k.
 \end{equation}
 
-Furthermore if $\|w_i^0 - x^\star\| \leq \frac{\mu}{H}$, for $i \in \{1, \dots, n\}$, then
+Furthermore if $\|w_i^0 - x^\star\| \leq \frac{\mu}{H}$, for $i \in \{1, \dots, n\}$ and $\min_{i \in \{1, \dots, n\}}{p_i} \geq \frac{\tau}{4n}$, then
 \begin{equation}
     \mathbf{E}_k W^{k + 1} \leq \left(1 - \frac{3\tau}{4n}\right)W^k.
 \end{equation}
@@ -210,7 +209,7 @@ Proof:
      \frac{1}{n}\sum\limits_{i=1}^{n}p_i\|x^k - x^\star\| + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| = \\
      \frac{\tau}{n}\|x^k - x^\star\| + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| \leq
      \frac{\tau}{n}\left(\frac{H}{2\mu}\right)^2\left(W^k\right)^2 + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| \leq \\
-     \frac{1}{4}\frac{\tau}{n} + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\|
+     \frac{1}{4}\frac{\tau}{n}W^k + \frac{1}{n}\sum\limits_{i=1}^{n}(1 - p_i)\|w_i^k - x^\star\| \leq \frac{1}{4}\frac{\tau}{n}W^k + \frac{1}{n}(1 - \min_{i \in \{1, \dots, n\}}{p_i})\sum\limits_{i=1}^{n}\|w_i^k - x^\star\|  = \\ \frac{1}{4}\frac{\tau}{n}W^k + (1 - \min_{i \in \{1, \dots, n\}}{p_i})W^k =  \left(\frac{1}{4}\frac{\tau}{n} + 1 - \min_{i \in \{1, \dots, n\}}{p_i}\right)W^k.
 \end{split}
 \end{equation*}
 
