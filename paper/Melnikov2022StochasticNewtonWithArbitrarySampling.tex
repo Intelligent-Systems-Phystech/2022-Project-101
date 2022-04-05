@@ -43,6 +43,7 @@
 
 \addbibresource{mybib.bib}
 \begin{document}
+\nocite{*}
 \maketitle
 
 \begin{abstract}
@@ -140,15 +141,6 @@ The main experiment is to establish the dependence of convergence accuracy on th
 We generate the synthetic data by the make classification function of the scikit-learn library, where n = 500 and d = 5. Each row of the data matrix is normalized such that $\|a_i\| = 1$. We run experiments for $\lambda = \{10^{-1}, 10^{-3}, 10^{-4}\}$, which leads to conditional number differ more than in 10 times.
 Initial point $x^0$ is taken as the result of GD in 30 iteration.
 
-\newpage
-
-We expect table in presented as pandas.DataFrame with columns=['k(iter num)', 'Ak/A0', 'tau', 'lambda'].
-
-Expected plots.\\  
-\includegraphics[width=90mm]{sketch.png}
-
-x-axis is number of iterations of the algorithm. y-axis is ratio $\cfrac{A_0}{A_k}$,where $A_0 = |x^*-x^0|, A_k = |x^*-x^k|$.
-
 \section{Preliminary report}
 Convergence has been established. For lambdas 0.001 and 0.0001 the difference in accuracy at 100th iteration is less than in 1.2 times for all butch sizes. However for lambda 0.1 accuracy is much higher - that is a fact to investigate in more detail.
 
@@ -227,7 +219,10 @@ The process is not random so here is no so called error, but we will look at dep
 \addcontentsline{toc}{section}{Список используемой литературы}
 
 %далее сам список используевой литературы
+
+
 \printbibliography
+
 \end{document}
 
 

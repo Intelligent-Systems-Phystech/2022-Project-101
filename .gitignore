@@ -5,3 +5,6 @@ paper/Melnikov2022StochasticNewtonWithArbitrarySampling.bbl
 paper/Melnikov2022StochasticNewtonWithArbitrarySampling.bcf
 paper/Melnikov2022StochasticNewtonWithArbitrarySampling.blg
 paper/Melnikov2022StochasticNewtonWithArbitrarySampling.run.xml
+.idea/
+code/.ipynb_checkpoints/
+
