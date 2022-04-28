@@ -25,6 +25,8 @@
 \usepackage{babel,csquotes,newcent,textcomp}
 \usepackage[backend=biber,sortcites]{biblatex}
 
+\usepackage{capt-of}
+
 
 \usepackage{lipsum}
 \title{Stochastic Newton with Arbitrary Sampling}
@@ -144,7 +146,22 @@ Initial point $x^0$ is taken as the result of GD in 30 iteration.
 \section{Preliminary report}
 Convergence has been established. For lambdas 0.001 and 0.0001 the difference in accuracy at 100th iteration is less than in 1.2 times for all butch sizes. However for lambda 0.1 accuracy is much higher - that is a fact to investigate in more detail.
 
-\includegraphics[width=90mm]{plot.png}
+\begin{figure}
+    \includegraphics[width=120mm]{convergence_0-1.png}
+    \captionof{figure}{$\lambda = 0.1$}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=120mm]{convergence_0-001.png}
+    \captionof{figure}{$\lambda = 0.001$}
+\end{figure}
+
+
+\begin{figure}
+    \includegraphics[width=120mm]{convergence_0-0001.png}
+    \captionof{figure}{$\lambda = 0.0001$}
+\end{figure}
+
 
 \section{Run Basic Code}
 We have implemented algorithm 1. 
@@ -207,13 +224,24 @@ Proof:
 
 \section{Analysing error}
 
-We measure speed up of improved sample strategy. So we measures first $n$ satisfying condition $A_n/A_0 < 0.8$.
-We will analyse the ratio of this measures for NS algorithm with uniformly distributed sample and our modification.
-The process is not random so here is no so called error, but we will look at dependency of this ratio on batch size and $\lambda$.
+We measure speed up of improved sample strategy. So we measures first $n$ satisfying condition $A_n/A_0 < r$.
+Where $r$ is maximum of minimal ratio for each algorithms.
 
-\includegraphics[width=90mm]{lambda.png}
+\includegraphics[width=90mm]{speed_lambda.png}
 
-\includegraphics[width=90mm]{batch_size.png}
+\includegraphics[width=90mm]{speed_batch_size.png}
+
+
+In the table below you can find average speed up for given batch size ($\lambda$ was taken on as linear grid on interval from 0 to 0.1).
+
+\begin{tabular}{ |c|c|c|c|c| }
+ \hline
+ Batch size & 1 & 2 & 4 & 8 \\
+ \hline
+ Speed up & 2.42 & 1.78 & 1.62 & 1.39 \\
+ \hline
+\end{tabular}
+
 
 \newpage
 \addcontentsline{toc}{section}{Список используемой литературы}
